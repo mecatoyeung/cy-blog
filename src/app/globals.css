@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: oklch(0.99 0.01 106);
+  --foreground: oklch(0.2 0.02 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 240);
+  --primary: oklch(0.58 0.18 20);
+  --primary-foreground: oklch(0.99 0.01 106);
+  --secondary: oklch(0.93 0.03 95);
+  --secondary-foreground: oklch(0.28 0.02 240);
+  --muted: oklch(0.95 0.01 110);
+  --muted-foreground: oklch(0.48 0.02 240);
+  --border: oklch(0.88 0.01 240);
+  --ring: oklch(0.58 0.18 20);
+  --radius: 0.7rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-ibm-plex-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  background-image: radial-gradient(circle at 20% 10%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 35%),
+    radial-gradient(circle at 80% 10%, color-mix(in oklab, var(--secondary) 70%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in oklab, white 90%, var(--primary) 10%) 0%, var(--background) 40%);
+}
+
+* {
+  border-color: var(--border);
+}
+
+/* ── Swing animation ────────────────────────────────────────────────────── */
+/* Plays a short swing once every 10 s (0.6 s active, 9.4 s idle)          */
+@keyframes swing {
+  0%,
+  100% { transform: rotate(0deg); }
+  10%  { transform: rotate(36deg); }
+  25%  { transform: rotate(-28deg); }
+  40%  { transform: rotate(20deg); }
+  55%  { transform: rotate(-12deg); }
+  70%  { transform: rotate(6deg); }
+  80%  { transform: rotate(0deg); }
+}
+
+.swing {
+  transform-origin: top center;
+  animation: swing 2s ease-in-out infinite;
+}
