@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "shadcn-ui": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@jpisnice/shadcn-ui-mcp-server"
+      ]
+    }
+  }
+}

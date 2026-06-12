@@ -1,13 +1,10 @@
 import { notFound } from "next/navigation";
 
+import { RichTextContent } from "@/components/rich-text-content";
 import { Badge } from "@/components/ui/badge";
-import { getPostBySlug, getPosts } from "@/lib/db";
+import { getPostBySlug } from "@/lib/db";
 
-export const dynamic = "force-static";
-
-export function generateStaticParams() {
-  return getPosts().map((post) => ({ slug: post.slug }));
-}
+export const dynamic = "force-dynamic";
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
@@ -34,11 +31,10 @@ export default async function PostPage({ params }: PostPageProps) {
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{post.title}</h1>
         <p className="mt-3 text-sm text-muted-foreground">Published {post.published_at}</p>
 
-        <div className="mt-6 space-y-5 break-words leading-7 text-foreground/90 sm:mt-8">
-          {post.body.split("\\n\\n").map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
+        <RichTextContent
+          value={post.body}
+          className="mt-6 space-y-5 break-words leading-7 text-foreground/90 sm:mt-8"
+        />
       </article>
     </main>
   );

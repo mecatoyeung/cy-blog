@@ -43,9 +43,9 @@ export default function RootLayout({
                 <Image
                   src="/img/Coding Panda.png"
                   alt="Coding Panda logo"
-                  width={72}
+                  width={96}
                   height={72}
-                  className="swing h-14 w-14 rounded-full object-cover sm:h-[72px] sm:w-[72px]"
+                  className="swing object-cover sm:h-[72px] sm:w-[96px]"
                   priority
                 />
               </Link>
@@ -53,14 +53,20 @@ export default function RootLayout({
 
             {/* Right: navigation links */}
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground font-bold md:justify-end">
-              <Link href="/resume" className="hover:text-foreground">
-                Resume
+              <Link href="/" className="hover:text-foreground">
+                Home
+              </Link>
+              <Link href="/blog" className="hover:text-foreground">
+                Blog
               </Link>
               <Link href="/portfolio" className="hover:text-foreground">
                 Portfolio
               </Link>
-              <Link href="/blog" className="hover:text-foreground">
-                Blog
+              <Link href="/resume" className="hover:text-foreground">
+                Resume
+              </Link>
+              <Link href="/contact" className="hover:text-foreground">
+                Contact
               </Link>
             </div>
           </nav>

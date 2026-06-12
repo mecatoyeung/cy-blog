@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Carousel } from "@/components/ui/carousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RichTextContent } from "@/components/rich-text-content";
 import { getPortfolioProjects } from "@/lib/db";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export default function PortfolioPage() {
   const projects = getPortfolioProjects();
@@ -34,7 +35,10 @@ export default function PortfolioPage() {
               <CardTitle className="mt-1 text-xl">{project.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="leading-7 text-muted-foreground">{project.description}</p>
+              <RichTextContent
+                value={project.description}
+                className="space-y-4 leading-7 text-muted-foreground"
+              />
             </CardContent>
           </Card>
         ))}
