@@ -230,86 +230,6 @@ function htmlToEditorState(html: string): EditorState {
   );
 }
 
-function formatHtmlWithTabs(html: string): string {
-  const normalizedHtml = html.trim() ? html : "<p></p>";
-  const voidElements = new Set([
-    "area",
-    "base",
-    "br",
-    "col",
-    "embed",
-    "hr",
-    "img",
-    "input",
-    "link",
-    "meta",
-    "param",
-    "source",
-    "track",
-    "wbr",
-  ]);
-
-  // Browser parser normalizes broken markup before indentation.
-  const doc = new DOMParser().parseFromString(`<body>${normalizedHtml}</body>`, "text/html");
-  const body = doc.body;
-
-  const renderNode = (node: Node, depth: number): string => {
-    const indent = "\t".repeat(depth);
-
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent?.replace(/\s+/g, " ").trim() ?? "";
-      return text ? `${indent}${text}` : "";
-    }
-
-    if (node.nodeType !== Node.ELEMENT_NODE) {
-      return "";
-    }
-
-    const element = node as Element;
-    const tag = element.tagName.toLowerCase();
-
-    const attrs = Array.from(element.attributes)
-      .map((attr) => ` ${attr.name}="${escapeHtml(attr.value)}"`)
-      .join("");
-
-    if (voidElements.has(tag)) {
-      return `${indent}<${tag}${attrs} />`;
-    }
-
-    const meaningfulChildren = Array.from(element.childNodes).filter((child) => {
-      if (child.nodeType === Node.TEXT_NODE) {
-        return (child.textContent?.trim().length ?? 0) > 0;
-      }
-      return child.nodeType === Node.ELEMENT_NODE;
-    });
-
-    if (meaningfulChildren.length === 0) {
-      return `${indent}<${tag}${attrs}></${tag}>`;
-    }
-
-    if (
-      meaningfulChildren.length === 1 &&
-      meaningfulChildren[0]?.nodeType === Node.TEXT_NODE
-    ) {
-      const inlineText = meaningfulChildren[0].textContent?.replace(/\s+/g, " ").trim() ?? "";
-      return `${indent}<${tag}${attrs}>${escapeHtml(inlineText)}</${tag}>`;
-    }
-
-    const children = meaningfulChildren
-      .map((child) => renderNode(child, depth + 1))
-      .filter(Boolean)
-      .join("\n");
-
-    return `${indent}<${tag}${attrs}>\n${children}\n${indent}</${tag}>`;
-  };
-
-  return Array.from(body.childNodes)
-    .map((node) => renderNode(node, 0))
-    .filter(Boolean)
-    .join("\n")
-    .trim();
-}
-
 export function DraftEditorField({ id, label, value, onChange }: DraftEditorFieldProps) {
   const startsInHtmlMode = useMemo(() => !tryParseRaw(value) && looksLikeHtml(value), [value]);
   const initialState = useMemo(() => buildEditorState(value), [value]);
@@ -317,7 +237,7 @@ export function DraftEditorField({ id, label, value, onChange }: DraftEditorFiel
   const [mode, setMode] = useState<"visual" | "html">(startsInHtmlMode ? "html" : "visual");
   const [htmlDraft, setHtmlDraft] = useState(
     startsInHtmlMode
-      ? formatHtmlWithTabs(value)
+      ? value
       : contentStateToHtml(initialState.getCurrentContent())
   );
   const [error, setError] = useState<string | null>(null);
@@ -351,7 +271,7 @@ export function DraftEditorField({ id, label, value, onChange }: DraftEditorFiel
         return;
       }
     } else {
-      setHtmlDraft(formatHtmlWithTabs(contentStateToHtml(editorState.getCurrentContent())));
+      setHtmlDraft(contentStateToHtml(editorState.getCurrentContent()));
     }
 
     setMode(nextMode);
@@ -360,13 +280,6 @@ export function DraftEditorField({ id, label, value, onChange }: DraftEditorFiel
   const handleHtmlChange = (nextHtml: string) => {
     setHtmlDraft(nextHtml);
     onChange(nextHtml);
-    setError(null);
-  };
-
-  const handleHtmlBlur = () => {
-    const formatted = formatHtmlWithTabs(htmlDraft);
-    setHtmlDraft(formatted);
-    onChange(formatted);
     setError(null);
   };
 
@@ -408,7 +321,6 @@ export function DraftEditorField({ id, label, value, onChange }: DraftEditorFiel
           id={id}
           value={htmlDraft}
           onChange={(event) => handleHtmlChange(event.target.value)}
-          onBlur={handleHtmlBlur}
           className="min-h-56 font-mono text-xs"
           spellCheck={false}
         />

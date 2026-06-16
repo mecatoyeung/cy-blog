@@ -4,6 +4,8 @@ import path from "node:path";
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = path.join(dataDir, "content.db");
+const forceSeed = process.env.FORCE_DB_SEED === "true";
+const dbExisted = fs.existsSync(dbPath);
 
 fs.mkdirSync(dataDir, { recursive: true });
 
@@ -57,11 +59,21 @@ db.exec(`
   );
 `);
 
+const hasExistingContent =
+  Boolean(db.prepare("SELECT 1 FROM resume WHERE id = 1").get()) ||
+  Boolean(db.prepare("SELECT 1 FROM experience LIMIT 1").get()) ||
+  Boolean(db.prepare("SELECT 1 FROM posts LIMIT 1").get()) ||
+  Boolean(db.prepare("SELECT 1 FROM portfolio_projects LIMIT 1").get());
+
+const shouldSeed = forceSeed || !dbExisted || !hasExistingContent;
+
 const seed = db.transaction(() => {
-  db.prepare("DELETE FROM portfolio_media").run();
-  db.prepare("DELETE FROM portfolio_projects").run();
-  db.prepare("DELETE FROM experience").run();
-  db.prepare("DELETE FROM posts").run();
+  if (forceSeed) {
+    db.prepare("DELETE FROM portfolio_media").run();
+    db.prepare("DELETE FROM portfolio_projects").run();
+    db.prepare("DELETE FROM experience").run();
+    db.prepare("DELETE FROM posts").run();
+  }
 
   db.prepare(
     `INSERT INTO resume (id, name, title, summary, email, location, website)
@@ -74,12 +86,12 @@ const seed = db.transaction(() => {
        location = excluded.location,
        website = excluded.website`
   ).run({
-    name: "Cat Yoeung",
+    name: "Cato Yeung",
     title: "Full-Stack Engineer",
     summary:
       "I design pragmatic web systems with strong data foundations and clear product thinking. I focus on developer experience, performance, and maintainable architecture.",
-    email: "cat@example.com",
-    location: "Bangkok, Thailand",
+    email: "me@catoyeung.com",
+    location: "Hong Kong",
     website: "https://example.com",
   });
 
@@ -108,10 +120,18 @@ const seed = db.transaction(() => {
   ];
 
   const insertExperience = db.prepare(
-    "INSERT INTO experience (company, role, period, highlights) VALUES (@company, @role, @period, @highlights)"
+    `INSERT INTO experience (company, role, period, highlights)
+     VALUES (@company, @role, @period, @highlights)`
   );
 
-  experiences.forEach((experience) => insertExperience.run(experience));
+  if (forceSeed) {
+    experiences.forEach((experience) => insertExperience.run(experience));
+  } else {
+    const existingExperience = db.prepare("SELECT COUNT(*) AS count FROM experience").get();
+    if ((existingExperience?.count ?? 0) === 0) {
+      experiences.forEach((experience) => insertExperience.run(experience));
+    }
+  }
 
   const posts = [
     {
@@ -150,7 +170,14 @@ const seed = db.transaction(() => {
     "INSERT INTO posts (slug, title, excerpt, body, published_at, tags) VALUES (@slug, @title, @excerpt, @body, @published_at, @tags)"
   );
 
-  posts.forEach((post) => insertPost.run(post));
+  if (forceSeed) {
+    posts.forEach((post) => insertPost.run(post));
+  } else {
+    const existingPosts = db.prepare("SELECT COUNT(*) AS count FROM posts").get();
+    if ((existingPosts?.count ?? 0) === 0) {
+      posts.forEach((post) => insertPost.run(post));
+    }
+  }
 
   // ── Portfolio ──────────────────────────────────────────────────────────────
   const portfolioProjects = [
@@ -205,16 +232,40 @@ const seed = db.transaction(() => {
     ],
   };
 
-  for (const project of portfolioProjects) {
-    const result = insertProject.run(project);
-    const projectId = result.lastInsertRowid;
-    const media = projectMedia[project.slug] ?? [];
-    for (const item of media) {
-      insertMedia.run({ project_id: projectId, ...item });
+  if (forceSeed) {
+    for (const project of portfolioProjects) {
+      const result = insertProject.run(project);
+      const projectId = result.lastInsertRowid;
+      const media = projectMedia[project.slug] ?? [];
+      for (const item of media) {
+        insertMedia.run({ project_id: projectId, ...item });
+      }
+    }
+  } else {
+    const existingProjects = db.prepare("SELECT COUNT(*) AS count FROM portfolio_projects").get();
+    if ((existingProjects?.count ?? 0) === 0) {
+      for (const project of portfolioProjects) {
+        const result = insertProject.run(project);
+        const projectId = result.lastInsertRowid;
+        const media = projectMedia[project.slug] ?? [];
+        for (const item of media) {
+          insertMedia.run({ project_id: projectId, ...item });
+        }
+      }
     }
   }
 });
-seed();
+
+if (shouldSeed) {
+  seed();
+}
+
 db.close();
 
-console.log(`Seeded SQLite content at ${dbPath}`);
+if (shouldSeed) {
+  console.log(
+    `${forceSeed ? "Reset and seeded" : "Seeded"} SQLite content at ${dbPath}`
+  );
+} else {
+  console.log(`SQLite content already exists at ${dbPath}; skipped seeding.`);
+}

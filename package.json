@@ -7,6 +7,7 @@
     "build": "next build",
     "prebuild": "npm run db:setup",
     "db:setup": "node scripts/setup-db.mjs",
+    "db:seed": "set FORCE_DB_SEED=true&& node scripts/setup-db.mjs",
     "start": "next start",
     "lint": "eslint"
   },
@@ -29,6 +30,7 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/draft-js": "^0.11.20",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sanitize-html": "^2.16.1",

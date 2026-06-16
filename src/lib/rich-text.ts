@@ -89,27 +89,44 @@ export function draftRawToPlainText(value: string): string | null {
     .trim();
 }
 
-const HTML_LIKE_PATTERN = /<\/?[a-z][^>]*>/i;
+const EXTRA_ALLOWED_RICH_HTML_TAGS = [
+  "img",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "figure",
+  "figcaption",
+  "span",
+];
+
+const ALLOWED_RICH_HTML_TAGS = Array.from(
+  new Set([...sanitizeHtml.defaults.allowedTags, ...EXTRA_ALLOWED_RICH_HTML_TAGS])
+);
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const RICH_HTML_TAG_PATTERN = ALLOWED_RICH_HTML_TAGS.map(escapeRegex).join("|");
+
+const HTML_LIKE_PATTERN = new RegExp(`<\\/?(?:${RICH_HTML_TAG_PATTERN})(?:\\s[^>]*)?>`, "i");
+const UNSAFE_LT_PATTERN = new RegExp(
+  `<(?!(?:/?(?:${RICH_HTML_TAG_PATTERN})(?:\\s|>|/))|!--)`,
+  "gi"
+);
 
 export function looksLikeHtml(value: string): boolean {
   return HTML_LIKE_PATTERN.test(value);
 }
 
 export function sanitizeRichHtml(value: string): string {
-  return sanitizeHtml(value, {
-    allowedTags: [
-      ...sanitizeHtml.defaults.allowedTags,
-      "img",
-      "h1",
-      "h2",
-      "h3",
-      "h4",
-      "h5",
-      "h6",
-      "figure",
-      "figcaption",
-      "span",
-    ],
+  const escapedValue = value.replace(UNSAFE_LT_PATTERN, "&lt;");
+
+  return sanitizeHtml(escapedValue, {
+    allowedTags: ALLOWED_RICH_HTML_TAGS,
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
       "*": ["class"],

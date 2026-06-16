@@ -22,6 +22,7 @@ npm run dev
 ```
 
 The dev script seeds SQLite first, then starts Next.js.
+The setup step creates the schema if needed and only seeds content when the database is empty.
 
 Create a local environment file before using the admin area:
 
@@ -39,8 +40,14 @@ npm run build
 During build:
 
 1. `prebuild` runs `npm run db:setup`.
-2. SQLite data is seeded into `data/content.db`.
+2. SQLite schema is created if needed, and seed data is only inserted when `data/content.db` is empty.
 3. Next.js compiles routes for runtime rendering.
+
+To intentionally reset the database back to seed content:
+
+```bash
+npm run db:seed
+```
 
 ## Data model
 

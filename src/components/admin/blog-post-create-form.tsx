@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { BlogPostFileManager } from "@/components/admin/blog-post-file-manager";
 import { DraftEditorField } from "@/components/admin/draft-editor-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +117,8 @@ export function BlogPostCreateForm() {
         value={post.body}
         onChange={(value) => setPost((current) => ({ ...current, body: value }))}
       />
+
+      <BlogPostFileManager key={post.slug} slug={post.slug} />
 
       <Button type="button" onClick={onSave} disabled={isSaving}>
         {isSaving ? "Creating..." : "Create Post"}

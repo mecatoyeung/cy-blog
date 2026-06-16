@@ -103,3 +103,31 @@ export async function isAdminAuthenticated() {
 
   return isValidAdminSessionToken(token);
 }
+
+export function shouldUseSecureCookies(request: Request) {
+  const secureOverride = process.env.ADMIN_COOKIE_SECURE?.trim().toLowerCase();
+  if (secureOverride === "true") {
+    return true;
+  }
+
+  if (secureOverride === "false") {
+    return false;
+  }
+
+  // Keep local and LAN development predictable across custom hostnames.
+  if (process.env.NODE_ENV !== "production") {
+    return false;
+  }
+
+  const forwardedProto = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim()
+    ?.toLowerCase();
+
+  if (forwardedProto) {
+    return forwardedProto === "https";
+  }
+
+  return new URL(request.url).protocol === "https:";
+}

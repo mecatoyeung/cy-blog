@@ -4,6 +4,7 @@ import {
   ADMIN_SESSION_COOKIE,
   createAdminSessionToken,
   hasAdminPasswordConfigured,
+  shouldUseSecureCookies,
   validateAdminPassword,
 } from "@/lib/admin-auth";
 
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
     name: ADMIN_SESSION_COOKIE,
     value: createAdminSessionToken(),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookies(request),
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 12,

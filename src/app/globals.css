@@ -48,6 +48,17 @@ body {
   border-color: var(--border);
 }
 
+h3 {
+  font-size: 125%;
+  font-weight: bold;
+}
+
+pre {
+  overflow-x: auto;
+  border: 1px solid;
+  border-color: var(--border);
+}
+
 /* ── Swing animation ────────────────────────────────────────────────────── */
 /* Plays a short swing once every 10 s (0.6 s active, 9.4 s idle)          */
 @keyframes swing {

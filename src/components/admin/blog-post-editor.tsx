@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 
+import { BlogPostFileManager } from "@/components/admin/blog-post-file-manager";
 import { DraftEditorField } from "@/components/admin/draft-editor-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { BlogPostFileRecord } from "@/lib/blog-post-files";
 import type { PostRecord } from "@/lib/db";
 
 type BlogPostEditorProps = {
   initialPost: PostRecord;
+  initialFiles: BlogPostFileRecord[];
 };
 
-export function BlogPostEditor({ initialPost }: BlogPostEditorProps) {
+export function BlogPostEditor({ initialPost, initialFiles }: BlogPostEditorProps) {
   const [post, setPost] = useState(initialPost);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string>("");
@@ -98,6 +101,8 @@ export function BlogPostEditor({ initialPost }: BlogPostEditorProps) {
         value={post.body}
         onChange={(value) => setPost((current) => ({ ...current, body: value }))}
       />
+
+      <BlogPostFileManager key={post.slug} slug={post.slug} initialFiles={initialFiles} />
 
       <Button type="button" onClick={onSave} disabled={isSaving}>
         {isSaving ? "Saving..." : "Save Post"}

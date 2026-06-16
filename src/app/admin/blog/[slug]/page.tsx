@@ -5,6 +5,7 @@ import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { hasAdminPasswordConfigured, isAdminAuthenticated } from "@/lib/admin-auth";
+import { listBlogPostFiles } from "@/lib/blog-post-files";
 import { getPostBySlug } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,8 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
     notFound();
   }
 
+  const postFiles = await listBlogPostFiles(post.slug);
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 md:px-12 md:py-10">
       <section className="flex flex-wrap items-center justify-between gap-3">
@@ -55,7 +58,7 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
 
       <Card>
         <CardContent className="pt-6">
-          <BlogPostEditor initialPost={post} />
+          <BlogPostEditor initialPost={post} initialFiles={postFiles} />
         </CardContent>
       </Card>
     </main>
