@@ -20,6 +20,8 @@ concurrency:
 
 jobs:
   build:
+    environment:
+      name: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -71,7 +73,10 @@ jobs:
         env:
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
         run: |
-          test -n "$USER_PASSWORD"
+          if [ -z "$USER_PASSWORD" ]; then
+            echo "::error::Missing USER_PASSWORD secret. Add it under Settings > Secrets and variables > Actions as a repository secret, or as an environment secret on the github-pages environment."
+            exit 1
+          fi
       - name: Build with Next.js
         env:
           NEXT_OUTPUT_EXPORT: "true"
