@@ -67,10 +67,16 @@ jobs:
         run: |
           test ! -d src/app/api
           test ! -d src/app/admin
+      - name: Verify public password secret is configured
+        env:
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+        run: |
+          test -n "$USER_PASSWORD"
       - name: Build with Next.js
         env:
           NEXT_OUTPUT_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: ""
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
