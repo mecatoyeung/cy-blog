@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 
 type ContactRequest = {
   name?: unknown;
@@ -12,23 +11,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function asTrimmedString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function parseBoolean(value: string | undefined) {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  const normalized = value.trim().toLowerCase();
-  if (normalized === "true") {
-    return true;
-  }
-
-  if (normalized === "false") {
-    return false;
-  }
-
-  return undefined;
 }
 
 export async function POST(request: Request) {
@@ -56,34 +38,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
   }
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPortRaw = process.env.SMTP_PORT;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpFrom = process.env.SMTP_FROM;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const resendFrom = process.env.RESEND_FROM ?? process.env.SMTP_FROM;
   const contactToEmail = process.env.CONTACT_TO_EMAIL ?? "me@catoyeung.com";
 
-  if (!smtpHost || !smtpPortRaw || !smtpUser || !smtpPass || !smtpFrom) {
-    return NextResponse.json(
-      { error: "SMTP settings are not fully configured." },
-      { status: 500 }
-    );
+  if (!resendApiKey || !resendFrom) {
+    return NextResponse.json({ error: "Resend settings are not fully configured." }, { status: 500 });
   }
-
-  const smtpPort = Number.parseInt(smtpPortRaw, 10);
-
-  if (Number.isNaN(smtpPort)) {
-    return NextResponse.json({ error: "SMTP_PORT must be a number." }, { status: 500 });
-  }
-
-  const secureFromEnv = parseBoolean(process.env.SMTP_SECURE);
-  const secure = secureFromEnv ?? smtpPort === 465;
 
   try {
     const sendMessage = {
-      from: smtpFrom,
+      from: resendFrom,
       to: contactToEmail,
-      replyTo: email,
+      reply_to: email,
       subject: `[Contact] ${subject}`,
       text: [
         "New contact form submission",
@@ -96,48 +63,23 @@ export async function POST(request: Request) {
       ].join("\n"),
     };
 
-    try {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(sendMessage),
+    });
 
-      await transporter.sendMail(sendMessage);
-    } catch (firstError) {
-      const shouldRetryWithAlternateTls =
-        (smtpPort === 587 || smtpPort === 465) &&
-        typeof firstError === "object" &&
-        firstError !== null &&
-        "code" in firstError &&
-        (firstError as { code?: string }).code === "ESOCKET";
-
-      if (!shouldRetryWithAlternateTls) {
-        throw firstError;
-      }
-
-      const fallbackTransporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: !secure,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
-
-      await fallbackTransporter.sendMail(sendMessage);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("Failed to send contact email via Resend", errorBody);
+      return NextResponse.json({ error: "Failed to send email via Resend." }, { status: 500 });
     }
   } catch (error) {
     console.error("Failed to send contact email", error);
-    return NextResponse.json(
-      { error: "Failed to send email. Check SMTP_PORT/SMTP_SECURE pairing." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to send email via Resend." }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

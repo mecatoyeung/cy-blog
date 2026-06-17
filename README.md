@@ -30,6 +30,9 @@ Create a local environment file before using the admin area and public site prot
 # .env.local
 ADMIN_PASSWORD=your-strong-password
 USER_PASSWORD=your-site-password
+RESEND_API_KEY=re_your_resend_api_key
+RESEND_FROM=cyblog@catoyeung.com
+CONTACT_TO_EMAIL=me@catoyeung.com
 ```
 
 ## Build production app
@@ -45,6 +48,8 @@ During build:
 3. Next.js compiles routes for runtime rendering.
 
 For GitHub Pages export, the workflow removes `src/app/admin` and `src/app/api` before running `next build` with `NEXT_OUTPUT_EXPORT=true`.
+
+The contact form now sends email through Resend. That still requires the contact API route to run on a runtime host; GitHub Pages static export will not execute it.
 
 To intentionally reset the database back to seed content:
 
@@ -84,3 +89,9 @@ Tables:
 - `/`, `/blog`, `/portfolio`, `/resume`, and `/contact` are protected by `USER_PASSWORD`.
 - Successful unlock stores a SHA-256 hash in `localStorage` and the public layout checks it client-side.
 - This is compatible with static export, but it is client-side deterrence rather than server-enforced protection.
+
+## Contact email
+
+- Contact delivery uses Resend via `RESEND_API_KEY`.
+- `RESEND_FROM` should be a verified sender in Resend.
+- `CONTACT_TO_EMAIL` controls the recipient address.
