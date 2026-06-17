@@ -8,23 +8,40 @@ import { withBasePath } from "@/lib/base-path";
 export function SiteHeader() {
   const [isLogoVisible, setIsLogoVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const isLogoVisibleRef = useRef(true);
+  const suppressUntilMs = useRef(0);
 
   useEffect(() => {
     lastScrollY.current = window.scrollY;
 
     const handleScroll = () => {
+      const now = performance.now();
       const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY.current;
 
-      if (currentScrollY <= 8) {
-        setIsLogoVisible(true);
+      if (now < suppressUntilMs.current) {
         lastScrollY.current = currentScrollY;
         return;
       }
 
-      if (currentScrollY > lastScrollY.current + 2) {
+      if (currentScrollY <= 8) {
+        if (!isLogoVisibleRef.current) {
+          isLogoVisibleRef.current = true;
+          setIsLogoVisible(true);
+          suppressUntilMs.current = now + 160;
+        }
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      if (scrollDelta > 10 && isLogoVisibleRef.current) {
+        isLogoVisibleRef.current = false;
         setIsLogoVisible(false);
-      } else if (currentScrollY < lastScrollY.current - 2) {
+        suppressUntilMs.current = now + 160;
+      } else if (scrollDelta < -14 && !isLogoVisibleRef.current) {
+        isLogoVisibleRef.current = true;
         setIsLogoVisible(true);
+        suppressUntilMs.current = now + 160;
       }
 
       lastScrollY.current = currentScrollY;
