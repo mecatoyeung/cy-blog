@@ -13,6 +13,27 @@ const notoSans = Noto_Sans({
 export const metadata: Metadata = {
   title: "Cato Yeung | Resume & Blog",
   description: "A static Next.js portfolio and engineering blog generated from SQLite.",
+  icons: {
+    icon: [
+      {
+        url: "/img/favicon/favicon-96x96.png",
+        type: "image/png",
+        sizes: "96x96",
+      },
+      {
+        url: "/img/favicon/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+    shortcut: "/img/favicon/favicon.ico",
+    apple: [
+      {
+        url: "/img/favicon/apple-touch-icon.png",
+        sizes: "180x180",
+      },
+    ],
+  },
+  manifest: "/img/favicon/site.webmanifest",
 };
 
 export default function RootLayout({
