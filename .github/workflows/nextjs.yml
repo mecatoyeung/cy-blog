@@ -63,12 +63,11 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Exclude server-only routes for Pages export
         run: |
-          if [ -d "src/app/api" ]; then
-            mv src/app/api .pages-disabled-api
-          fi
-          if [ -d "src/app/admin" ]; then
-            mv src/app/admin .pages-disabled-admin
-          fi
+          rm -rf src/app/api src/app/admin
+      - name: Verify server-only routes are excluded
+        run: |
+          test ! -d src/app/api
+          test ! -d src/app/admin
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
