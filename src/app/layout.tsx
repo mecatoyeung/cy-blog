@@ -12,7 +12,7 @@ const notoSans = Noto_Sans({
 
 export const metadata: Metadata = {
   title: "Cato Yeung | Resume & Blog",
-  description: "A static Next.js portfolio and engineering blog generated from SQLite.",
+  description: "My portfolio and engineering blog.",
   icons: {
     icon: [
       {
