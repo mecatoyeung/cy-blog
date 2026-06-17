@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Noto_Sans } from 'next/font/google';
+import { withBasePath } from "@/lib/base-path";
 import "./globals.css";
 
 // Configure the font
@@ -21,6 +22,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const logoSrc = withBasePath("/img/Coding Panda.png");
+
   return (
     <html
       lang="en"
@@ -41,7 +44,7 @@ export default function RootLayout({
             <div className="flex justify-center md:justify-center">
               <Link href="/" aria-label="Home">
                 <Image
-                  src="/img/Coding Panda.png"
+                  src={logoSrc}
                   alt="Coding Panda logo"
                   width={96}
                   height={72}
