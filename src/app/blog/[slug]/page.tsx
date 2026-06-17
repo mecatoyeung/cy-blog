@@ -2,13 +2,17 @@ import { notFound } from "next/navigation";
 
 import { RichTextContent } from "@/components/rich-text-content";
 import { Badge } from "@/components/ui/badge";
-import { getPostBySlug } from "@/lib/db";
+import { getPostBySlug, getPosts } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export function generateStaticParams() {
+  return getPosts().map((post) => ({ slug: post.slug }));
+}
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;

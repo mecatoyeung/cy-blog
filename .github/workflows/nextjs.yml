@@ -61,6 +61,14 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Exclude server-only routes for Pages export
+        run: |
+          if [ -d "src/app/api" ]; then
+            mv src/app/api .pages-disabled-api
+          fi
+          if [ -d "src/app/admin" ]; then
+            mv src/app/admin .pages-disabled-admin
+          fi
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact

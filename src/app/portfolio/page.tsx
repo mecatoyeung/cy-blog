@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RichTextContent } from "@/components/rich-text-content";
 import { getPortfolioProjects } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default function PortfolioPage() {
   const projects = getPortfolioProjects();

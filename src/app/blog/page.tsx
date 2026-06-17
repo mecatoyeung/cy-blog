@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPosts } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default function BlogPage() {
   const posts = getPosts();
