@@ -24,11 +24,12 @@ npm run dev
 The dev script seeds SQLite first, then starts Next.js.
 The setup step creates the schema if needed and only seeds content when the database is empty.
 
-Create a local environment file before using the admin area:
+Create a local environment file before using the admin area and public site protection:
 
 ```bash
 # .env.local
 ADMIN_PASSWORD=your-strong-password
+USER_PASSWORD=your-site-password
 ```
 
 ## Build production app
@@ -42,6 +43,8 @@ During build:
 1. `prebuild` runs `npm run db:setup`.
 2. SQLite schema is created if needed, and seed data is only inserted when `data/content.db` is empty.
 3. Next.js compiles routes for runtime rendering.
+
+This app uses runtime-only features including API routes and `src/proxy.ts`, so it cannot be deployed with `next export` or GitHub Pages static export.
 
 To intentionally reset the database back to seed content:
 
@@ -75,3 +78,8 @@ Tables:
 - `/admin` is hidden from the navbar.
 - Access requires `ADMIN_PASSWORD` from environment variables.
 - Successful login sets an HTTP-only session cookie used by `/api/admin/*` routes.
+
+## Public site protection
+
+- `/`, `/blog`, `/portfolio`, `/resume`, and `/contact` are protected by `USER_PASSWORD`.
+- Successful unlock sets an HTTP-only session cookie enforced by `src/proxy.ts`.
