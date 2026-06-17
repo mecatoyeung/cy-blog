@@ -1,4 +1,5 @@
 import sanitizeHtml from "sanitize-html";
+import { withBasePath } from "@/lib/base-path";
 
 export type DraftRawInlineStyleRange = {
   offset: number;
@@ -136,6 +137,13 @@ export function sanitizeRichHtml(value: string): string {
     allowedSchemes: ["http", "https", "mailto", "tel", "data"],
     transformTags: {
       a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }, true),
+      img: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          ...attribs,
+          src: attribs.src ? withBasePath(attribs.src) : attribs.src,
+        },
+      }),
     },
   });
 }

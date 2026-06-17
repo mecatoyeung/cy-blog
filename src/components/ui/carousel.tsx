@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useState } from "react";
 
+import { withBasePath } from "@/lib/base-path";
 import { cn } from "@/lib/utils";
 import type { PortfolioMediaRecord } from "@/lib/db";
 
@@ -26,6 +27,7 @@ export function Carousel({ media, title }: CarouselProps) {
   if (media.length === 0) return null;
 
   const item = media[current];
+  const mediaUrl = withBasePath(item.url);
 
   return (
     <div className="relative overflow-hidden rounded-lg bg-muted">
@@ -34,7 +36,7 @@ export function Carousel({ media, title }: CarouselProps) {
         {item.type === "video" ? (
           <video
             key={item.url}
-            src={item.url}
+            src={mediaUrl}
             controls
             className="h-full w-full object-contain"
             aria-label={item.alt}
@@ -43,7 +45,7 @@ export function Carousel({ media, title }: CarouselProps) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={item.url}
-            src={item.url}
+            src={mediaUrl}
             alt={item.alt || `${title} — slide ${current + 1}`}
             className="h-full w-full object-cover"
             onError={(e) => {

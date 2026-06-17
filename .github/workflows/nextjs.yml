@@ -69,6 +69,8 @@ jobs:
           test ! -d src/app/api
           test ! -d src/app/admin
       - name: Build with Next.js
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
