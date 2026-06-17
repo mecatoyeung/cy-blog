@@ -44,7 +44,7 @@ During build:
 2. SQLite schema is created if needed, and seed data is only inserted when `data/content.db` is empty.
 3. Next.js compiles routes for runtime rendering.
 
-This app uses runtime-only features including API routes and `src/proxy.ts`, so it cannot be deployed with `next export` or GitHub Pages static export.
+For GitHub Pages export, the workflow removes `src/app/admin` and `src/app/api` before running `next build` with `NEXT_OUTPUT_EXPORT=true`.
 
 To intentionally reset the database back to seed content:
 
@@ -82,4 +82,5 @@ Tables:
 ## Public site protection
 
 - `/`, `/blog`, `/portfolio`, `/resume`, and `/contact` are protected by `USER_PASSWORD`.
-- Successful unlock sets an HTTP-only session cookie enforced by `src/proxy.ts`.
+- Successful unlock stores a SHA-256 hash in `localStorage` and the public layout checks it client-side.
+- This is compatible with static export, but it is client-side deterrence rather than server-enforced protection.

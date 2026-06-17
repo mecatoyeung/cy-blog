@@ -1,4 +1,4 @@
-name: Build Next.js app
+name: Deploy Next.js site to Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -10,6 +10,13 @@ on:
 
 permissions:
   contents: read
+
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -39,6 +46,8 @@ jobs:
         with:
           node-version: "24"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
       - name: Restore cache
         uses: actions/cache@v5
         with:
@@ -51,7 +60,30 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      - name: Lint
-        run: ${{ steps.detect-package-manager.outputs.manager }} run lint
+      - name: Exclude server-only routes for Pages export
+        run: |
+          rm -rf src/app/api src/app/admin
+      - name: Verify server-only routes are excluded
+        run: |
+          test ! -d src/app/api
+          test ! -d src/app/admin
       - name: Build with Next.js
+        env:
+          NEXT_OUTPUT_EXPORT: "true"
+          NEXT_PUBLIC_BASE_PATH: ""
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

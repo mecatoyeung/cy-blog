@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Noto_Sans } from 'next/font/google';
+import { PublicSiteGate } from "@/components/public-site-gate";
 import { SiteHeader } from "@/components/site-header";
+import { getUserPasswordHash } from "@/lib/user-auth";
 import "./globals.css";
 
 // Configure the font
@@ -41,6 +43,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const userPasswordHash = getUserPasswordHash();
+
   return (
     <html
       lang="en"
@@ -48,7 +52,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SiteHeader />
-        {children}
+        <PublicSiteGate passwordHash={userPasswordHash}>
+          {children}
+        </PublicSiteGate>
       </body>
     </html>
   );
