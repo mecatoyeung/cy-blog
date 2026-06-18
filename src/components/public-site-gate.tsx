@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ function getStoredPasswordHash() {
 
 export function PublicSiteGate({ children, passwordHash }: PublicSiteGateProps) {
   const pathname = usePathname();
+  const [hasHydrated, setHasHydrated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +62,23 @@ export function PublicSiteGate({ children, passwordHash }: PublicSiteGateProps) 
     () => null
   );
   const isUnlocked = !protectedPath || !passwordHash || storedPasswordHash === passwordHash;
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  if (!hasHydrated && protectedPath && passwordHash) {
+    return (
+      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 py-8 sm:px-6 md:px-12 md:py-10">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Checking Access</CardTitle>
+            <CardDescription>Verifying your saved session.</CardDescription>
+          </CardHeader>
+        </Card>
+      </main>
+    );
+  }
 
   if (isUnlocked) {
     return <>{children}</>;
