@@ -14,7 +14,7 @@ export function RichTextContent({ value, className }: RichTextContentProps) {
       <div
         className={cn(
           className,
-          "[&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-md [&_img]:object-contain"
+          "[&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-md [&_img]:object-contain [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:max-w-full [&_iframe]:rounded-md [&_iframe]:border"
         )}
         dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(value) }}
       />

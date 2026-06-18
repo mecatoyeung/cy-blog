@@ -61,14 +61,14 @@ export function Carousel({ media, title }: CarouselProps) {
             <button
               onClick={prev}
               aria-label="Previous slide"
-              className="absolute left-2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow transition hover:bg-background sm:h-8 sm:w-8"
+              className="absolute left-2 flex h-9 w-9 items-center justify-center rounded-full bg-rose-600 text-white shadow transition hover:bg-rose-700 sm:h-8 sm:w-8"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={next}
               aria-label="Next slide"
-              className="absolute right-2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow transition hover:bg-background sm:h-8 sm:w-8"
+              className="absolute right-2 flex h-9 w-9 items-center justify-center rounded-full bg-rose-600 text-white shadow transition hover:bg-rose-700 sm:h-8 sm:w-8"
             >
               <ChevronRight size={18} />
             </button>

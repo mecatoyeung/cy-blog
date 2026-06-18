@@ -92,6 +92,7 @@ export function draftRawToPlainText(value: string): string | null {
 
 const EXTRA_ALLOWED_RICH_HTML_TAGS = [
   "img",
+  "iframe",
   "h1",
   "h2",
   "h3",
@@ -124,7 +125,12 @@ export function looksLikeHtml(value: string): boolean {
 }
 
 export function sanitizeRichHtml(value: string): string {
-  const escapedValue = value.replace(UNSAFE_LT_PATTERN, "&lt;");
+  // Never render executable scripts from user-authored rich text.
+  const withoutScripts = value
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<script\b[^>]*\/?>/gi, "");
+
+  const escapedValue = withoutScripts.replace(UNSAFE_LT_PATTERN, "&lt;");
 
   return sanitizeHtml(escapedValue, {
     allowedTags: ALLOWED_RICH_HTML_TAGS,
@@ -133,6 +139,17 @@ export function sanitizeRichHtml(value: string): string {
       "*": ["class"],
       a: ["href", "name", "target", "rel"],
       img: ["src", "srcset", "alt", "title", "width", "height", "loading", "decoding"],
+      iframe: [
+        "src",
+        "title",
+        "width",
+        "height",
+        "loading",
+        "allow",
+        "allowfullscreen",
+        "referrerpolicy",
+        "sandbox",
+      ],
     },
     allowedSchemes: ["http", "https", "mailto", "tel", "data"],
     transformTags: {
