@@ -23,7 +23,7 @@ export default function ContactPage() {
         <CardHeader>
           <CardTitle>Contact Me</CardTitle>
           <CardDescription>
-            Send a message and it will be delivered to me@catoyeung.com.
+            Send a message to me@catoyeung.com. If this static site cannot deliver directly, a one-click email fallback will appear.
           </CardDescription>
         </CardHeader>
         <CardContent>
