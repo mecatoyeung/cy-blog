@@ -77,38 +77,11 @@ jobs:
             echo "::error::Missing USER_PASSWORD secret. Add it under Settings > Secrets and variables > Actions as a repository secret, or as an environment secret on the github-pages environment."
             exit 1
           fi
-      - name: Verify contact email secret is configured
-        env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-        run: |
-          if [ -z "$RESEND_API_KEY" ]; then
-            echo "::error::Missing RESEND_API_KEY secret. Add it under Settings > Secrets and variables > Actions as a repository secret, or as an environment secret on the github-pages environment."
-            exit 1
-          fi
-      - name: Verify contact sender secret is configured
-        env:
-          RESEND_FROM: ${{ secrets.RESEND_FROM }}
-        run: |
-          if [ -z "$RESEND_FROM" ]; then
-            echo "::error::Missing RESEND_FROM secret. Add it under Settings > Secrets and variables > Actions as a repository secret, or as an environment secret on the github-pages environment."
-            exit 1
-          fi
-      - name: Verify contact recipient secret is configured
-        env:
-          CONTACT_TO_EMAIL: ${{ secrets.CONTACT_TO_EMAIL }}
-        run: |
-          if [ -z "$CONTACT_TO_EMAIL" ]; then
-            echo "::error::Missing CONTACT_TO_EMAIL secret. Add it under Settings > Secrets and variables > Actions as a repository secret, or as an environment secret on the github-pages environment."
-            exit 1
-          fi
       - name: Build with Next.js
         env:
           NEXT_OUTPUT_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: ""
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          RESEND_FROM: ${{ secrets.RESEND_FROM }}
-          CONTACT_TO_EMAIL: ${{ secrets.CONTACT_TO_EMAIL }}
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
