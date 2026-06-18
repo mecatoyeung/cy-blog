@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "CY's Blog",
+  "short_name": "CY's Blog",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

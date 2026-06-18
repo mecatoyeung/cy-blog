@@ -76,7 +76,9 @@ export function ContactForm() {
         <Textarea id="contact-message" name="message" className="min-h-36" required />
       </div>
 
-      <Button type="submit" disabled={status.state === "sending"}>
+      <Button type="submit" 
+        className="bg-rose-600 text-white hover:bg-rose-700"
+        disabled={status.state === "sending"}>
         {status.state === "sending" ? "Sending..." : "Send Message"}
       </Button>
 
