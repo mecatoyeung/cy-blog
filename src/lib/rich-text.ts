@@ -164,3 +164,27 @@ export function sanitizeRichHtml(value: string): string {
     },
   });
 }
+
+export function richTextToPlainText(value: string): string {
+  const draftText = draftRawToPlainText(value);
+  if (draftText !== null) {
+    return draftText.replace(/\s+/g, " ").trim();
+  }
+
+  if (looksLikeHtml(value)) {
+    const htmlWithoutTags = sanitizeRichHtml(value).replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ");
+    return htmlWithoutTags.replace(/\s+/g, " ").trim();
+  }
+
+  return value.replace(/\s+/g, " ").trim();
+}
+
+export function truncateWords(value: string, maxWords: number): string {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+
+  if (words.length <= maxWords) {
+    return words.join(" ");
+  }
+
+  return `${words.slice(0, maxWords).join(" ")}...`;
+}

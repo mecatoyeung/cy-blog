@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPosts, getPortfolioProjects, getResume } from "@/lib/db";
+import { richTextToPlainText, truncateWords } from "@/lib/rich-text";
 
 export const dynamic = "force-static";
 
@@ -15,7 +16,7 @@ export default function Home() {
   const latestWorks = getPortfolioProjects().slice(0, 3);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 md:gap-8 md:px-12 md:py-10">
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 md:gap-8 md:px-12 md:py-10">
       <section className="rounded-xl border bg-card/95 p-5 shadow-sm sm:p-8">
         
         <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
@@ -70,7 +71,7 @@ export default function Home() {
             <Card key={work.slug} className="border-primary/20">
               <CardHeader>
                 <CardTitle>{work.title}</CardTitle>
-                <CardDescription>{work.description}</CardDescription>
+                <CardDescription>{truncateWords(richTextToPlainText(work.description), 40)}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ButtonLink href={`/portfolio/${work.slug}`} variant="ghost" size="sm" className="gap-2 px-0">
