@@ -28,6 +28,11 @@ export type DraftRawContent = {
   entityMap: Record<string, unknown>;
 };
 
+export type RichTextImage = {
+  src: string;
+  alt: string;
+};
+
 export function parseDraftRawContent(value: string): DraftRawContent | null {
   if (!value.trim()) {
     return null;
@@ -177,6 +182,89 @@ export function richTextToPlainText(value: string): string {
   }
 
   return value.replace(/\s+/g, " ").trim();
+}
+
+function getAttributeValue(tag: string, attribute: string): string | null {
+  const match = tag.match(new RegExp(`${attribute}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, "i"));
+  if (!match) {
+    return null;
+  }
+
+  return (match[2] ?? match[3] ?? match[4] ?? "").trim() || null;
+}
+
+function extractFirstImageFromDraftRaw(value: string): RichTextImage | null {
+  const parsed = parseDraftRawContent(value);
+  if (!parsed) {
+    return null;
+  }
+
+  for (const block of parsed.blocks) {
+    for (const range of block.entityRanges) {
+      const entity = parsed.entityMap[String(range.key)];
+      if (!entity || typeof entity !== "object") {
+        continue;
+      }
+
+      const candidate = entity as {
+        type?: unknown;
+        data?: unknown;
+      };
+
+      const type = typeof candidate.type === "string" ? candidate.type.toUpperCase() : "";
+      if (!type.includes("IMAGE")) {
+        continue;
+      }
+
+      const data =
+        candidate.data && typeof candidate.data === "object"
+          ? (candidate.data as Record<string, unknown>)
+          : null;
+
+      const srcCandidate = data?.src ?? data?.url ?? data?.imageSrc;
+      const altCandidate = data?.alt ?? data?.title;
+
+      if (typeof srcCandidate === "string" && srcCandidate.trim()) {
+        return {
+          src: srcCandidate.trim(),
+          alt: typeof altCandidate === "string" ? altCandidate.trim() : "",
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+function extractFirstImageFromHtml(value: string): RichTextImage | null {
+  if (!looksLikeHtml(value)) {
+    return null;
+  }
+
+  const sanitized = sanitizeRichHtml(value);
+  const imgTag = sanitized.match(/<img\b[^>]*>/i)?.[0];
+  if (!imgTag) {
+    return null;
+  }
+
+  const src = getAttributeValue(imgTag, "src");
+  if (!src) {
+    return null;
+  }
+
+  return {
+    src,
+    alt: getAttributeValue(imgTag, "alt") ?? "",
+  };
+}
+
+export function richTextFirstImage(value: string): RichTextImage | null {
+  const draftRawImage = extractFirstImageFromDraftRaw(value);
+  if (draftRawImage) {
+    return draftRawImage;
+  }
+
+  return extractFirstImageFromHtml(value);
 }
 
 export function truncateWords(value: string, maxWords: number): string {

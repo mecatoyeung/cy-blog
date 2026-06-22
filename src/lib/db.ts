@@ -89,6 +89,22 @@ export type PortfolioMediaInput = {
   sort_order: number;
 };
 
+export type ResumeUpdateInput = {
+  name: string;
+  title: string;
+  summary: string;
+  email: string;
+  location: string;
+  website: string;
+};
+
+export type ExperienceInput = {
+  company: string;
+  role: string;
+  period: string;
+  highlights: string;
+};
+
 export function getResume() {
   const db = openDb();
   const resume = db
@@ -313,6 +329,61 @@ export function replacePortfolioMediaByProjectSlug(
   });
 
   const replaced = transaction(slug, media);
+  db.close();
+  return replaced;
+}
+
+export function updateResume(input: ResumeUpdateInput): boolean {
+  const db = openWritableDb();
+  const result = db
+    .prepare(
+      `INSERT INTO resume (id, name, title, summary, email, location, website)
+       VALUES (1, @name, @title, @summary, @email, @location, @website)
+       ON CONFLICT(id) DO UPDATE SET
+         name = excluded.name,
+         title = excluded.title,
+         summary = excluded.summary,
+         email = excluded.email,
+         location = excluded.location,
+         website = excluded.website`
+    )
+    .run({
+      name: input.name,
+      title: input.title,
+      summary: input.summary,
+      email: input.email,
+      location: input.location,
+      website: input.website,
+    });
+
+  db.close();
+  return result.changes > 0;
+}
+
+export function replaceExperiences(experiences: ExperienceInput[]): boolean {
+  const db = openWritableDb();
+
+  const transaction = db.transaction((nextExperiences: ExperienceInput[]) => {
+    db.prepare("DELETE FROM experience").run();
+
+    const insertExperience = db.prepare(
+      "INSERT INTO experience (company, role, period, highlights) VALUES (@company, @role, @period, @highlights)"
+    );
+
+    // Public queries sort by id DESC, so insert in reverse to preserve UI order.
+    for (const experience of [...nextExperiences].reverse()) {
+      insertExperience.run({
+        company: experience.company,
+        role: experience.role,
+        period: experience.period,
+        highlights: experience.highlights,
+      });
+    }
+
+    return true;
+  });
+
+  const replaced = transaction(experiences);
   db.close();
   return replaced;
 }

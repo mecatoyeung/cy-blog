@@ -59,6 +59,10 @@ pre {
   border-color: var(--border);
 }
 
+a.link { 
+  color: var(--color-blue-400);
+}
+
 /* ── Swing animation ────────────────────────────────────────────────────── */
 /* Plays a short swing once every 10 s (0.6 s active, 9.4 s idle)          */
 @keyframes swing {

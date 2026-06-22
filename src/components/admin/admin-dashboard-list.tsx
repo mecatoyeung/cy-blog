@@ -76,6 +76,20 @@ export function AdminDashboardList({ posts, projects }: AdminDashboardListProps)
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
+            <CardTitle>Resume</CardTitle>
+            <ButtonLink href="/admin/resume" size="sm">Edit Resume</ButtonLink>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Update profile details and work experience shown on the resume page.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle>Portfolio Projects</CardTitle>
             <ButtonLink href="/admin/portfolio/new" size="sm">Create Project</ButtonLink>
           </div>

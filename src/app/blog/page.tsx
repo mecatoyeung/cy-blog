@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { withBasePath } from "@/lib/base-path";
 import { getPosts } from "@/lib/db";
+import { richTextFirstImage } from "@/lib/rich-text";
 
 export const dynamic = "force-static";
 
@@ -19,28 +21,49 @@ export default function BlogPage() {
       </section>
 
       <section className="grid gap-4">
-        {posts.map((post) => (
-          <Card key={post.slug}>
-            <CardHeader>
-              <div className="mb-2 flex flex-wrap gap-2">
-                {post.tags.split(",").map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
-                  </Badge>
-                ))}
+        {posts.map((post) => {
+          const firstImage = richTextFirstImage(post.body);
+
+          return (
+            <Card key={post.slug} className="overflow-hidden">
+              <div className="relative aspect-video w-full bg-muted">
+                {firstImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <Link href={`/blog/${post.slug}`} className="hover:underline">
+                    <img
+                      src={withBasePath(firstImage.src)}
+                      alt={firstImage.alt || `${post.title} preview`}
+                      className="h-full w-full object-cover"
+                    />
+                  </Link>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                    Preview image unavailable
+                  </div>
+                )}
               </div>
-              <CardTitle>
-                <Link href={`/blog/${post.slug}`} className="hover:underline">
-                  {post.title}
-                </Link>
-              </CardTitle>
-              <CardDescription>{post.excerpt}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Published {post.published_at}</p>
-            </CardContent>
-          </Card>
-        ))}
+
+              <CardHeader>
+                <div className="mb-2 flex flex-wrap gap-2">
+                  {post.tags.split(",").map((tag) => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+                <CardTitle>
+                  <Link href={`/blog/${post.slug}`} className="hover:underline">
+                    {post.title}
+                  </Link>
+                </CardTitle>
+                <CardDescription>{post.excerpt}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Published {post.published_at}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </section>
     </main>
   );

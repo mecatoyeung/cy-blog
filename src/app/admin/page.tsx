@@ -44,7 +44,7 @@ export default async function AdminPage() {
         <div>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Admin Area</h1>
         <p className="mt-2 text-muted-foreground">
-          Manage blog posts and portfolio projects.
+          Manage resume content, blog posts, and portfolio projects.
         </p>
         </div>
         <AdminLogoutButton />
